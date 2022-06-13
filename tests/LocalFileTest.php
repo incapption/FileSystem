@@ -16,16 +16,20 @@ class LocalFileTest extends TestCase
     {
         $testFiles = glob('./tests/TestStorage/*.*');
 
-        foreach ($testFiles as $testFile) {
-            if (is_file($testFile) && basename($testFile) !== ".gitkeep") {
+        foreach ($testFiles as $testFile)
+        {
+            if (is_file($testFile) && basename($testFile) !== ".gitkeep")
+            {
                 unlink($testFile);
             }
         }
 
         $testFiles = glob('./tests/TestStorage/Subfolder/*.*');
 
-        foreach ($testFiles as $testFile) {
-            if (is_file($testFile) && basename($testFile) !== ".gitkeep") {
+        foreach ($testFiles as $testFile)
+        {
+            if (is_file($testFile) && basename($testFile) !== ".gitkeep")
+            {
                 unlink($testFile);
             }
         }
@@ -35,9 +39,20 @@ class LocalFileTest extends TestCase
     public function write_a_local_file()
     {
         $file = new LocalFile();
-        $file->write('./tests/TestStorage/test1.jpg', file_get_contents('./tests/Storage/test.jpg'));
+        $file->write('./tests/TestStorage/test1.jpg', './tests/Storage/test.jpg');
 
         $this->assertFileExists('./tests/TestStorage/test1.jpg');
+    }
+
+    /** @test */
+    public function write_a_local_file_as_multipart()
+    {
+        $file = new LocalFile();
+        $file->writeMultiPart('./tests/TestStorage/test_stream.bin', './tests/Storage/5MB.bin', function ($totalSize, $uploaded)
+        {
+            $this->assertNotEmpty($totalSize);
+        });
+        $this->assertFileExists('./tests/TestStorage/test_stream.bin');
     }
 
     /** @test */
@@ -58,7 +73,7 @@ class LocalFileTest extends TestCase
     public function move_a_local_file()
     {
         $file = new LocalFile('./tests/TestStorage/test1.jpg');
-        $file->move('./tests/TestStorage/Subfolder');
+        $file->moveTo('./tests/TestStorage/Subfolder');
 
         $this->assertFalse(file_exists('./tests/TestStorage/test1.jpg'));
 
@@ -91,7 +106,7 @@ class LocalFileTest extends TestCase
     {
         $file = new LocalFile('./tests/TestStorage/Subfolder/test3.jpg');
 
-        $file->move('./tests');
+        $file->moveTo('./tests');
 
         $this->assertTrue(file_exists('./tests/test3.jpg'));
 
@@ -99,7 +114,7 @@ class LocalFileTest extends TestCase
 
         $this->assertTrue(file_exists('./tests/test4.jpg'));
 
-        $file->move('./tests/TestStorage/Subfolder');
+        $file->moveTo('./tests/TestStorage/Subfolder');
 
         $this->assertTrue(file_exists('./tests/TestStorage/Subfolder/test4.jpg'));
 
@@ -116,7 +131,7 @@ class LocalFileTest extends TestCase
     public function copy_a_local_file()
     {
         $file = new LocalFile('./tests/TestStorage/Subfolder/test4.jpg');
-        $file->copy('./tests/TestStorage/test_copy.jpg');
+        $file->copyTo('./tests/TestStorage/test_copy.jpg');
 
         $this->assertEquals('test4.jpg', $file->toArray()['name']);
         $this->assertEquals('image/jpeg', $file->toArray()['mimeType']);

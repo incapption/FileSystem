@@ -36,7 +36,7 @@ class LocalFileExceptionTest extends TestCase
     {
         $this->expectException(FileNotWritten::class);
         $file = new LocalFile();
-        $file->move('/test/TestStorage/foo');
+        $file->moveTo('/test/TestStorage/foo');
     }
 
     /** @test */
@@ -52,7 +52,7 @@ class LocalFileExceptionTest extends TestCase
     {
         $this->expectException(FileNotWritten::class);
         $file = new LocalFile();
-        $file->copy('/test/TestStorage/foo');
+        $file->copyTo('/test/TestStorage/foo');
     }
 
     /** @test */
@@ -60,7 +60,7 @@ class LocalFileExceptionTest extends TestCase
     {
         $this->expectException(FileAlreadyWritten::class);
         $file = new LocalFile('./tests/Storage/test.jpg');
-        $file->write('./tests/TestStorage/test1.jpg', 'foobar');
+        $file->write('./tests/TestStorage/test1.jpg', './tests/Storage/test.jpg');
     }
 
     /** @test */
@@ -68,7 +68,7 @@ class LocalFileExceptionTest extends TestCase
     {
         $this->expectException(DirectoryDoesNotExist::class);
         $file = new LocalFile();
-        $file->write('./tests/'.sha1(42).'/test1.jpg', 'foobar');
+        $file->write('./tests/'.sha1(42).'/test1.jpg', './tests/Storage/test.jpg');
     }
 
     /** @test */
@@ -76,7 +76,7 @@ class LocalFileExceptionTest extends TestCase
     {
         $this->expectException(DirectoryDoesNotExist::class);
         $file = new LocalFile('./tests/Storage/test.jpg');
-        $file->move('./tests/'.sha1(42).'/test1.jpg');
+        $file->moveTo('./tests/'.sha1(42).'/test1.jpg');
     }
 
     /** @test */
@@ -84,6 +84,6 @@ class LocalFileExceptionTest extends TestCase
     {
         $this->expectException(DirectoryDoesNotExist::class);
         $file = new LocalFile('./tests/Storage/test.jpg');
-        $file->move('./tests/Storage/test.jpg');
+        $file->moveTo('./tests/Storage/test.jpg');
     }
 }
