@@ -2,11 +2,16 @@
 
 namespace Incapption\FileSystem;
 
-use Incapption\FileSystem\Exceptions\InvalidFileTypeException;
 use Incapption\FileSystem\Interfaces\FileInterface;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemException;
+use League\Flysystem\UnableToCopyFile;
+use League\Flysystem\UnableToDeleteFile;
+use League\Flysystem\UnableToMoveFile;
+use League\Flysystem\UnableToReadFile;
+use League\Flysystem\UnableToRetrieveMetadata;
+use League\Flysystem\UnableToWriteFile;
 
 class File extends Filesystem implements FileInterface
 {
@@ -16,51 +21,30 @@ class File extends Filesystem implements FileInterface
     private $filePath;
 
     /**
-     * @param  string  $filePath
+     * @param  string|null  $filePath
      * @param  FilesystemAdapter  $adapter
      */
-    public function __construct(string $filePath, FilesystemAdapter $adapter)
+    public function __construct(?string $filePath, FilesystemAdapter $adapter)
     {
         parent::__construct($adapter);
 
-        $this->filePath = $filePath;
+        if ($filePath !== null)
+        {
+            $this->filePath = $filePath;
+        }
     }
 
-    /**
-     * @param  array  $mime_types
-     * @return FileInterface
-     * @throws InvalidFileTypeException|FilesystemException
-     */
-    public function allowMimeType(array $mime_types): FileInterface
+    private function checkObject(): void
     {
-        if (!in_array($this->getMimeType(), $mime_types))
-        {
-            throw new InvalidFileTypeException('File::construct : File type is not allowed: '.$this->getMimeType());
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param  array  $mime_types
-     * @return FileInterface
-     * @throws InvalidFileTypeException|FilesystemException
-     */
-    public function disallowMimeType(array $mime_types): FileInterface
-    {
-        if (in_array($this->getMimeType(), $mime_types))
-        {
-            throw new InvalidFileTypeException('File::construct : File type is not allowed: '.$this->getMimeType());
-        }
-
-        return $this;
+        if ($this->filePath === null)
+            throw new UnableToReadFile('file path not set');
     }
 
     /**
      * @param  string  $dest
-     * @param $contents
+     * @param  string  $contents
      * @return FileInterface
-     * @throws FilesystemException
+     * @throws FilesystemException|UnableToWriteFile
      */
     public function __write(string $dest, $contents): FileInterface
     {
@@ -73,11 +57,28 @@ class File extends Filesystem implements FileInterface
 
     /**
      * @param  string  $dest
+     * @param  resource  $contents
      * @return FileInterface
-     * @throws FilesystemException
+     * @throws FilesystemException|UnableToWriteFile
+     */
+    public function __writeStream(string $dest, $contents): FileInterface
+    {
+        $this->writeStream($dest, $contents);
+
+        $this->filePath = $dest;
+
+        return $this;
+    }
+
+    /**
+     * @param  string  $dest
+     * @return FileInterface
+     * @throws FilesystemException|UnableToMoveFile|UnableToReadFile
      */
     public function __move(string $dest): FileInterface
     {
+        $this->checkObject();
+
         $this->move($this->filePath, $dest);
 
         $this->filePath = $dest;
@@ -88,13 +89,15 @@ class File extends Filesystem implements FileInterface
     /**
      * @param  string  $new_name
      * @return FileInterface
-     * @throws FilesystemException
+     * @throws FilesystemException|UnableToReadFile
      */
     public function __rename(string $new_name): FileInterface
     {
-        $newFilePath = dirname($this->filePath).DIRECTORY_SEPARATOR.$new_name;
+        $this->checkObject();
 
-        $this->move($this->filePath, $newFilePath);
+        $newFilePath = $this->getDirectoryName().DIRECTORY_SEPARATOR.$new_name;
+
+        $this->__move($newFilePath);
 
         return $this;
     }
@@ -102,10 +105,12 @@ class File extends Filesystem implements FileInterface
     /**
      * @param  string  $dest
      * @return FileInterface
-     * @throws FilesystemException
+     * @throws FilesystemException|UnableToCopyFile|UnableToReadFile
      */
     public function __copy(string $dest): FileInterface
     {
+        $this->checkObject();
+
         $this->copy($this->filePath, $dest);
 
         return $this;
@@ -113,29 +118,37 @@ class File extends Filesystem implements FileInterface
 
     /**
      * @return bool
+     * @throws FilesystemException|UnableToDeleteFile|UnableToReadFile
      */
     public function __delete(): bool
     {
-        try
-        {
-            $this->delete($this->filePath);
-        }
-        catch (FilesystemException $e)
-        {
-            return false;
-        }
+        $this->checkObject();
 
+        $this->delete($this->filePath);
+        $this->filePath = null;
         return true;
+    }
+
+    /**
+     * @return string
+     * @throws FilesystemException|UnableToReadFile
+     */
+    public function getContent(): string
+    {
+        $this->checkObject();
+        return $this->read($this->filePath);
     }
 
     /**
      * @param  string  $prefix
      * @return FileInterface
-     * @throws FilesystemException
+     * @throws FilesystemException|UnableToReadFile
      */
     public function setRandomName(string $prefix = ''): FileInterface
     {
-        $randomName = sha1(mt_rand()).'.'.pathinfo($this->getFileName(), PATHINFO_EXTENSION);
+        $this->checkObject();
+
+        $randomName = sha1(mt_rand()).$this->getExtension();
         $randomName = strlen($prefix) > 0 ? $prefix.'_'.$randomName : $randomName;
 
         $this->__rename($randomName);
@@ -145,67 +158,99 @@ class File extends Filesystem implements FileInterface
 
     /**
      * @return string
+     * @throws UnableToReadFile
      */
     public function getFullPath(): string
     {
+        $this->checkObject();
         return $this->filePath;
     }
 
     /**
      * @return string
+     * @throws UnableToReadFile
      */
-    public function getFileName(): string
+    public function getName(): string
     {
+        $this->checkObject();
         return basename($this->filePath);
     }
 
     /**
      * @return int
-     * @throws FilesystemException
+     * @throws FilesystemException|UnableToRetrieveMetadata|UnableToReadFile
      */
-    public function getFileSize(): int
+    public function getSize(): int
     {
+        $this->checkObject();
         return $this->fileSize($this->filePath);
     }
 
     /**
      * @return string
+     * @throws UnableToReadFile
      */
-    public function getFileExtension(): string
+    public function getExtension(): string
     {
-        return pathinfo($this->getFileName(), PATHINFO_EXTENSION);
+        $this->checkObject();
+        return '.'.pathinfo($this->getName(), PATHINFO_EXTENSION);
     }
 
     /**
      * @return string
-     * @throws FilesystemException
+     * @throws FilesystemException|UnableToRetrieveMetadata|UnableToReadFile
      */
     public function getMimeType(): string
     {
+        $this->checkObject();
         return $this->mimeType($this->filePath);
     }
 
     /**
+     * @return int
+     * @throws FilesystemException|UnableToRetrieveMetadata|UnableToReadFile
+     */
+    public function getLastModified(): int
+    {
+        $this->checkObject();
+        return $this->lastModified($this->filePath);
+    }
+
+    /**
      * @return string
+     * @throws UnableToReadFile
      */
     public function getDirectoryName(): string
     {
-        return dirname($this->getFullPath()).DIRECTORY_SEPARATOR;
+        $this->checkObject();
+        return dirname($this->getFullPath());
     }
 
     /**
      * @return array
-     * @throws FilesystemException
+     * @throws FilesystemException|UnableToReadFile
      */
     public function toArray(): array
     {
+        $this->checkObject();
+
         return array(
-            'file_name'      => $this->getFileName(),
-            'file_size'      => $this->getFileSize(),
-            'file_extension' => $this->getFileExtension(),
-            'file_mime_type' => $this->getMimeType(),
-            'full_path'      => $this->getFullPath(),
-            'directory_name' => $this->getDirectoryName()
+            'file_name'          => $this->getName(),
+            'file_size'          => $this->getSize(),
+            'file_extension'     => $this->getExtension(),
+            'file_mime_type'     => $this->getMimeType(),
+            'file_last_modified' => $this->getLastModified(),
+            'full_path'          => $this->getFullPath(),
+            'directory_name'     => $this->getDirectoryName()
         );
+    }
+
+    /**
+     * @return string
+     * @throws FilesystemException|UnableToReadFile
+     */
+    public function toJson(): string
+    {
+        return json_encode($this->toArray());
     }
 }

@@ -4,9 +4,9 @@ namespace Incapption\FileSystem\Interfaces;
 
 interface FileInterface
 {
-    public function allowMimeType(array $mime_types): FileInterface;
+    public function __write(string $dest, $contents): FileInterface;
 
-    public function disallowMimeType(array $mime_types): FileInterface;
+    public function __writeStream(string $dest, $contents): FileInterface;
 
     public function __move(string $dest): FileInterface;
 
@@ -16,19 +16,23 @@ interface FileInterface
 
     public function __delete(): bool;
 
-    public function setRandomName(string $prefix = ''): FileInterface;
+    public function getContent(): string;
 
     public function getFullPath(): string;
 
-    public function getFileName(): string;
+    public function getName(): string;
 
-    public function getFileSize(): int;
+    public function getSize(): int;
 
-    public function getFileExtension(): string;
+    public function getExtension(): string;
 
     public function getMimeType(): string;
+
+    public function getLastModified(): int;
 
     public function getDirectoryName(): string;
 
     public function toArray(): array;
+
+    public function toJson(): string;
 }
