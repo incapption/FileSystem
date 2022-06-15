@@ -80,13 +80,14 @@ class File extends Filesystem implements FileInterface
     /**
      * @param  string  $dest
      * @return FileInterface
-     * @throws FilesystemException|UnableToMoveFile|UnableToReadFile
+     * @throws FilesystemException|UnableToWriteFile|UnableToReadFile
      */
     public function __move(string $dest): FileInterface
     {
         $this->checkObject();
 
-        $this->move($this->filePath, $dest);
+        $this->writeStream($dest, $this->readStream($this->filePath));
+        $this->delete($this->filePath);
 
         $this->filePath = $dest;
 
