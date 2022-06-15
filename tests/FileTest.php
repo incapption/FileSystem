@@ -45,7 +45,7 @@ class FileTest extends TestCase
     /** @test */
     public function write_a_file()
     {
-        $file = new File(null, $this->adapter);
+        $file = new File($this->adapter, null);
         $file->__write('./tests/TestStorage/test1.jpg', file_get_contents('./tests/Storage/test.jpg'));
 
         $this->assertFileExists('./tests/TestStorage/test1.jpg');
@@ -54,7 +54,7 @@ class FileTest extends TestCase
     /** @test */
     public function write_a_file_as_stream()
     {
-        $file = new File(null, $this->adapter);
+        $file = new File($this->adapter, null);
         $file->__writeStream('./tests/TestStorage/5MB_streamed.bin', fopen('./tests/Storage/5MB.bin', 'r'));
 
         $this->assertFileExists('./tests/TestStorage/5MB_streamed.bin');
@@ -63,7 +63,7 @@ class FileTest extends TestCase
     /** @test */
     public function instantiate_a_file()
     {
-        $file = new File('./tests/TestStorage/5MB_streamed.bin', $this->adapter);
+        $file = new File($this->adapter, './tests/TestStorage/5MB_streamed.bin');
 
         $this->assertEquals('5MB_streamed.bin', $file->toArray()['file_name']);
         $this->assertEquals('application/octet-stream', $file->toArray()['file_mime_type']);
@@ -78,7 +78,7 @@ class FileTest extends TestCase
     /** @test */
     public function move_a_file()
     {
-        $file = new File('./tests/TestStorage/5MB_streamed.bin', $this->adapter);
+        $file = new File($this->adapter, './tests/TestStorage/5MB_streamed.bin');
 
         $file->__move('./tests/TestStorage/Subfolder/5MB_streamed.bin');
 
@@ -91,7 +91,7 @@ class FileTest extends TestCase
     /** @test */
     public function rename_a_file()
     {
-        $file = new File('./tests/TestStorage/Subfolder/5MB_streamed.bin', $this->adapter);
+        $file = new File($this->adapter, './tests/TestStorage/Subfolder/5MB_streamed.bin');
 
         $file->__rename('5MB_streamed_new_name.bin');
 
@@ -109,7 +109,7 @@ class FileTest extends TestCase
     /** @test */
     public function copy_a_file()
     {
-        $file = new File('./tests/TestStorage/Subfolder/5MB_streamed_new_name.bin', $this->adapter);
+        $file = new File($this->adapter, './tests/TestStorage/Subfolder/5MB_streamed_new_name.bin');
 
         $file->__copy('./tests/TestStorage/Subfolder/5MB_streamed_copied.bin');
 
@@ -123,7 +123,7 @@ class FileTest extends TestCase
         $this->assertEquals('.bin', $file->toArray()['file_extension']);
 
         // instantiate copy
-        $file = new File('./tests/TestStorage/Subfolder/5MB_streamed_copied.bin', $this->adapter);
+        $file = new File($this->adapter, './tests/TestStorage/Subfolder/5MB_streamed_copied.bin');
 
         $this->assertEquals(1, substr_count($file->toArray()['full_path'], 'tests/TestStorage/Subfolder/5MB_streamed_copied.bin'));
 
@@ -135,7 +135,7 @@ class FileTest extends TestCase
     /** @test */
     public function delete_a_local_file()
     {
-        $file = new File('./tests/TestStorage/Subfolder/5MB_streamed_copied.bin', $this->adapter);
+        $file = new File($this->adapter, './tests/TestStorage/Subfolder/5MB_streamed_copied.bin');
         $file->__delete();
 
         $this>$this->expectException(UnableToReadFile::class);

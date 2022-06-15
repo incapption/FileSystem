@@ -26,13 +26,13 @@ class MyFile extends Incapption\FileSystem\File
     /**
      * @param  string|null  $filePath
      */
-    public function __construct(?string $filePath)
+    public function __construct(?string $filePath = null)
     {
         $adapter = new LocalFilesystemAdapter(
             'path/to/root' # Path to the root of you application
         );
         
-        parent::__construct($filePath, $adapter);
+        parent::__construct($adapter, $filePath);
     }
     
     public function myCustomMethod()
@@ -58,11 +58,9 @@ $file->__write('user/1/101/images/avatar.jpg', file_get_contents('tmp/uploaded_a
 class MyS3File extends Incapption\FileSystem\File
 {
     /**
-    * @var string
-    */
-    private $filePath;
-    
-    public function __construct(?string $filePath)
+     * @param  string|null  $filePath
+     */
+    public function __construct(?string $filePath = null)
     {
         $client = new S3Client([
             'version'     => 'latest',
@@ -83,7 +81,7 @@ class MyS3File extends Incapption\FileSystem\File
             'your-bucket-name'
         );
         
-        parent::__construct($filePath, $adapter);
+        parent::__construct($adapter, $filePath);
     }
     
     public function myCustomMethod()

@@ -23,11 +23,11 @@ class File extends Filesystem implements FileInterface
     public $filePath;
 
     /**
-     * @param  string|null  $filePath
      * @param  FilesystemAdapter  $adapter
+     * @param  string|null  $filePath
      * @throws CorruptedPathDetected|PathTraversalDetected
      */
-    public function __construct(?string $filePath, FilesystemAdapter $adapter)
+    public function __construct(FilesystemAdapter $adapter, ?string $filePath = null)
     {
         parent::__construct($adapter);
 
@@ -37,6 +37,10 @@ class File extends Filesystem implements FileInterface
         }
     }
 
+    /**
+     * @return void
+     * @throws UnableToReadFile
+     */
     protected function checkObject(): void
     {
         if ($this->filePath === null)
