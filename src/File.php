@@ -3,9 +3,11 @@
 namespace Incapption\FileSystem;
 
 use Incapption\FileSystem\Interfaces\FileInterface;
+use League\Flysystem\CorruptedPathDetected;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemException;
+use League\Flysystem\PathTraversalDetected;
 use League\Flysystem\UnableToCopyFile;
 use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\UnableToMoveFile;
@@ -16,13 +18,14 @@ use League\Flysystem\UnableToWriteFile;
 class File extends Filesystem implements FileInterface
 {
     /**
-     * @var string
+     * @var string|null
      */
     private $filePath;
 
     /**
      * @param  string|null  $filePath
      * @param  FilesystemAdapter  $adapter
+     * @throws CorruptedPathDetected|PathTraversalDetected
      */
     public function __construct(?string $filePath, FilesystemAdapter $adapter)
     {
@@ -126,6 +129,7 @@ class File extends Filesystem implements FileInterface
 
         $this->delete($this->filePath);
         $this->filePath = null;
+
         return true;
     }
 
@@ -137,23 +141,6 @@ class File extends Filesystem implements FileInterface
     {
         $this->checkObject();
         return $this->read($this->filePath);
-    }
-
-    /**
-     * @param  string  $prefix
-     * @return FileInterface
-     * @throws FilesystemException|UnableToReadFile
-     */
-    public function setRandomName(string $prefix = ''): FileInterface
-    {
-        $this->checkObject();
-
-        $randomName = sha1(mt_rand()).$this->getExtension();
-        $randomName = strlen($prefix) > 0 ? $prefix.'_'.$randomName : $randomName;
-
-        $this->__rename($randomName);
-
-        return $this;
     }
 
     /**
