@@ -20,7 +20,7 @@ class File extends Filesystem implements FileInterface
     /**
      * @var string|null
      */
-    private $filePath;
+    public $filePath;
 
     /**
      * @param  string|null  $filePath
@@ -37,7 +37,7 @@ class File extends Filesystem implements FileInterface
         }
     }
 
-    private function checkObject(): void
+    protected function checkObject(): void
     {
         if ($this->filePath === null)
             throw new UnableToReadFile('file path not set');
