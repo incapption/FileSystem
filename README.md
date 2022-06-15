@@ -32,7 +32,7 @@ class MyFile extends Incapption\FileSystem\File
             'path/to/root' # Path to the root of you application
         );
         
-        parent:__construct($filePath, $adapter);
+        parent::__construct($filePath, $adapter);
     }
     
     public function myCustomMethod()
@@ -83,7 +83,7 @@ class MyS3File extends Incapption\FileSystem\File
             'your-bucket-name'
         );
         
-        parent:__construct($filePath, $adapter);
+        parent::__construct($filePath, $adapter);
     }
     
     public function myCustomMethod()
