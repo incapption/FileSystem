@@ -133,6 +133,8 @@ The required IAM permissions are as followed:
 ### 2. Public methods
 Methods you can use on your file object
 ```php
+public function __construct(FilesystemAdapter $adapter, ?string $filePath = null);
+
 public function __write(string $dest, $contents): FileInterface;
 
 public function __writeStream(string $dest, $contents): FileInterface;
@@ -164,32 +166,36 @@ public function getDirectoryName(): string;
 public function toArray(): array;
 
 public function toJson(): string;
+
+/* IN ADDITION:
+ * all public function from \League\Flysystem\Filesystem
+ */
 ```
 
 ### 3. Exceptions
 >Either exceptions are thrown or the methods were successful
 
-| Method               | Exceptions                                                      |
-|----------------------|-----------------------------------------------------------------|
-| __construct()        | CorruptedPathDetected, PathTraversalDetected                    |
-| __write()            | FilesystemException, UnableToWriteFile                          |
-| __writeStream()      | FilesystemException, UnableToWriteFile                          |
-| __move()             | FilesystemException, UnableToMoveFile, UnableToReadFile         |
-| __rename()           | FilesystemException, UnableToReadFile                           |
-| __copy()             | FilesystemException, UnableToCopyFile, UnableToReadFile         |
-| __delete()           | FilesystemException, UnableToDeleteFile, UnableToReadFile       |
-| __getContent()       | FilesystemException, UnableToReadFile                           |
-| __getFullPath()      | UnableToReadFile                                                |
-| __getName()          | UnableToReadFile                                                |
-| __getSize()          | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile |
-| __getExtension()     | UnableToReadFile                                                |
-| __getMimeType()      | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile |
-| __getLastModified()  | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile |
-| __getDirectoryName() | UnableToReadFile                                                |
-| __toArray()          | FilesystemException, UnableToReadFile                           |
-| __toJson()           | FilesystemException, UnableToReadFile                           |
+| Method               | Exceptions                                                                          |
+|----------------------|-------------------------------------------------------------------------------------|
+| __construct()        | CorruptedPathDetected, PathTraversalDetected, UnableToReadFile, FilesystemException |
+| __write()            | FilesystemException, UnableToWriteFile                                              |
+| __writeStream()      | FilesystemException, UnableToWriteFile                                              |
+| __move()             | FilesystemException, UnableToMoveFile, UnableToReadFile                             |
+| __rename()           | FilesystemException, UnableToReadFile                                               |
+| __copy()             | FilesystemException, UnableToCopyFile, UnableToReadFile                             |
+| __delete()           | FilesystemException, UnableToDeleteFile, UnableToReadFile                           |
+| __getContent()       | FilesystemException, UnableToReadFile                                               |
+| __getFullPath()      | UnableToReadFile                                                                    |
+| __getName()          | UnableToReadFile                                                                    |
+| __getSize()          | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile                     |
+| __getExtension()     | UnableToReadFile                                                                    |
+| __getMimeType()      | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile                     |
+| __getLastModified()  | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile                     |
+| __getDirectoryName() | UnableToReadFile                                                                    |
+| __toArray()          | FilesystemException, UnableToReadFile                                               |
+| __toJson()           | FilesystemException, UnableToReadFile                                               |
 
 ### 4. Things to know
-- If you delete a file it gets 
+- If you delete a file, the object gets resetted
 - getExtension() returns the Extension with a leading dot
 - Methods are throwing exception. If no exception is thrown, everything worked fine

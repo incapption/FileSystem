@@ -10,7 +10,6 @@ use League\Flysystem\FilesystemException;
 use League\Flysystem\PathTraversalDetected;
 use League\Flysystem\UnableToCopyFile;
 use League\Flysystem\UnableToDeleteFile;
-use League\Flysystem\UnableToMoveFile;
 use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToRetrieveMetadata;
 use League\Flysystem\UnableToWriteFile;
@@ -25,7 +24,7 @@ class File extends Filesystem implements FileInterface
     /**
      * @param  FilesystemAdapter  $adapter
      * @param  string|null  $filePath
-     * @throws CorruptedPathDetected|PathTraversalDetected
+     * @throws CorruptedPathDetected|PathTraversalDetected|UnableToReadFile|FilesystemException
      */
     public function __construct(FilesystemAdapter $adapter, ?string $filePath = null)
     {
@@ -33,6 +32,11 @@ class File extends Filesystem implements FileInterface
 
         if ($filePath !== null)
         {
+            if ($this->fileExists($filePath) === false)
+            {
+                throw new UnableToReadFile($filePath.' does not exist');
+            }
+
             $this->filePath = $filePath;
         }
     }
@@ -44,7 +48,9 @@ class File extends Filesystem implements FileInterface
     protected function checkObject(): void
     {
         if ($this->filePath === null)
+        {
             throw new UnableToReadFile('file path not set');
+        }
     }
 
     /**
