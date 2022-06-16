@@ -197,5 +197,5 @@ public function toJson(): string;
 
 ### 4. Things to know
 - If you delete a file, the object gets resetted
-- getExtension() returns the Extension with a leading dot
+- getExtension() returns the Extension without a leading dot
 - Methods are throwing exception. If no exception is thrown, everything worked fine

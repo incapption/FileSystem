@@ -191,7 +191,7 @@ class File extends Filesystem implements FileInterface
     public function getExtension(): string
     {
         $this->checkObject();
-        return '.'.pathinfo($this->getName(), PATHINFO_EXTENSION);
+        return pathinfo($this->getName(), PATHINFO_EXTENSION);
     }
 
     /**
