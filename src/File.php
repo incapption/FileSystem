@@ -124,8 +124,8 @@ class File extends Filesystem implements FileInterface
     public function __copy(string $dest): FileInterface
     {
         $this->checkObject();
-
-        $this->copy($this->filePath, $dest);
+        
+        $this->writeStream($dest, $this->readStream($this->filePath));
 
         return $this;
     }
