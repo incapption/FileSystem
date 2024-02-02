@@ -173,27 +173,8 @@ public function toJson(): string;
 ```
 
 ### 3. Exceptions
->Either exceptions are thrown or the methods were successful
-
-| Method             | Exceptions                                                                          |
-|--------------------|-------------------------------------------------------------------------------------|
-| __construct()      | CorruptedPathDetected, PathTraversalDetected, UnableToReadFile, FilesystemException |
-| __write()          | FilesystemException, UnableToWriteFile                                              |
-| __writeStream()    | FilesystemException, UnableToWriteFile                                              |
-| __move()           | FilesystemException, UnableToMoveFile, UnableToReadFile                             |
-| __rename()         | FilesystemException, UnableToReadFile                                               |
-| __copy()           | FilesystemException, UnableToCopyFile, UnableToReadFile                             |
-| __delete()         | FilesystemException, UnableToDeleteFile, UnableToReadFile                           |
-| getContent()       | FilesystemException, UnableToReadFile                                               |
-| getFullPath()      | UnableToReadFile                                                                    |
-| getName()          | UnableToReadFile                                                                    |
-| getSize()          | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile                     |
-| getExtension()     | UnableToReadFile                                                                    |
-| getMimeType()      | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile                     |
-| getLastModified()  | FilesystemException, UnableToRetrieveMetadata, UnableToReadFile                     |
-| getDirectoryName() | UnableToReadFile                                                                    |
-| toArray()          | FilesystemException, UnableToReadFile                                               |
-| toJson()           | FilesystemException, UnableToReadFile                                               |
+>FilesystemException are thrown if something went wrong
+```php
 
 ### 4. Things to know
 - If you delete a file, the object gets resetted

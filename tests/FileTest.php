@@ -3,8 +3,9 @@
 namespace Incapption\FileSystem\Tests;
 
 use Incapption\FileSystem\File;
-use Incapption\FileSystem\LocalFile;
+use League\Flysystem\FilesystemException;
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\UnableToReadFile;
 use PHPUnit\Framework\TestCase;
 
@@ -67,7 +68,7 @@ class FileTest extends TestCase
 
         $this->assertEquals('5MB_streamed.bin', $file->toArray()['file_name']);
         $this->assertEquals('application/octet-stream', $file->toArray()['file_mime_type']);
-        $this->assertEquals('.bin', $file->toArray()['file_extension']);
+        $this->assertEquals('bin', $file->toArray()['file_extension']);
 
         $this->assertNotEmpty($file->toArray()['full_path']);
         $this->assertNotEmpty($file->toArray()['file_size']);
@@ -102,7 +103,7 @@ class FileTest extends TestCase
 
         $this->assertEquals('5MB_streamed_new_name.bin', $file->toArray()['file_name']);
         $this->assertEquals('application/octet-stream', $file->toArray()['file_mime_type']);
-        $this->assertEquals('.bin', $file->toArray()['file_extension']);
+        $this->assertEquals('bin', $file->toArray()['file_extension']);
 
     }
 
@@ -120,7 +121,7 @@ class FileTest extends TestCase
 
         $this->assertEquals('5MB_streamed_new_name.bin', $file->toArray()['file_name']);
         $this->assertEquals('application/octet-stream', $file->toArray()['file_mime_type']);
-        $this->assertEquals('.bin', $file->toArray()['file_extension']);
+        $this->assertEquals('bin', $file->toArray()['file_extension']);
 
         // instantiate copy
         $file = new File($this->adapter, './tests/TestStorage/Subfolder/5MB_streamed_copied.bin');
@@ -129,7 +130,7 @@ class FileTest extends TestCase
 
         $this->assertEquals('5MB_streamed_copied.bin', $file->toArray()['file_name']);
         $this->assertEquals('application/octet-stream', $file->toArray()['file_mime_type']);
-        $this->assertEquals('.bin', $file->toArray()['file_extension']);
+        $this->assertEquals('bin', $file->toArray()['file_extension']);
     }
 
     /** @test */
@@ -138,12 +139,11 @@ class FileTest extends TestCase
         $file = new File($this->adapter, './tests/TestStorage/Subfolder/5MB_streamed_copied.bin');
         $file->__delete();
 
-        $this>$this->expectException(UnableToReadFile::class);
+        $file = new File($this->adapter, './tests/TestStorage/Subfolder/5MB_streamed_new_name.bin');
+        $file->__delete();
 
-        $this->assertEquals(1, substr_count($file->toArray()['full_path'], 'tests/TestStorage/Subfolder/5MB_streamed_copied.bin'));
-
-        $this->assertEquals('5MB_streamed_copied.bin', $file->toArray()['file_name']);
-        $this->assertEquals('application/octet-stream', $file->toArray()['file_mime_type']);
-        $this->assertEquals('.bin', $file->toArray()['file_extension']);
+        $this->assertFalse(file_exists('./tests/TestStorage/Subfolder/5MB_streamed_copied.bin'));
+        $this->assertFalse(file_exists('./tests/TestStorage/Subfolder/5MB_streamed_new_name.bin'));
     }
+
 }
