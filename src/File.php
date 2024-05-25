@@ -101,11 +101,12 @@ class File extends Filesystem implements FileInterface
      */
     public function __delete(): bool
     {
-        $r = $this->delete($this->filePath);
-        $this->filePath = null;
+        $this->delete($this->filePath);
 
-        if(is_null($r))
+        if($this->fileExists($this->filePath))
             return false;
+
+        $this->filePath = null;
 
         return true;
     }
